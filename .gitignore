@@ -1,0 +1,6 @@
+accounts.json
+avatars
+
+__pycache__/
+*.py[cod]
+.venv
