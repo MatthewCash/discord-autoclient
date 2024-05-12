@@ -30,12 +30,6 @@ class AvatarCycleConfig:
         return AvatarCycleConfig(False, "", "")
 
 
-def get_random_avatar_path(d: str) -> str:
-    return random.choice(
-        [path.join(d, f) for f in listdir(d) if path.isfile(path.join(d, f))]
-    )
-
-
 class Client:
     i = 0
 
@@ -45,10 +39,12 @@ class Client:
     activity_cron: aiocron.Cron
     avatar_cycle_config: AvatarCycleConfig
     avatar_cycle_cron: aiocron.Cron
+    last_avatar_cycle_path: str | None
 
     def __init__(self, name: str, avatar_cycle_config: AvatarCycleConfig):
         self.name = name
         self.avatar_cycle_config = avatar_cycle_config
+        self.last_avatar_cycle_path = None
 
     def __del__(self):
         if hasattr(self, "avatar_cycle_cron"):
@@ -75,12 +71,25 @@ class Client:
 
         print(f"Client {self.name} connected!")
 
+    def get_random_avatar_path(self, d: str) -> str:
+        files = listdir(d)
+        avatar_path = random.choice(
+            [
+                path.join(d, f)
+                for f in files
+                if path.isfile(path.join(d, f))
+                and (path.join(d, f) != self.last_avatar_cycle_path or len(files) <= 1)
+            ]
+        )
+        self.last_avatar_cycle_path = avatar_path
+        return avatar_path
+
     async def cycle_avatar(self):
         await (await self.tab.select('button[aria-label="User Settings"]')).click()
         await (await self.tab.find("edit user profile", best_match=True)).click()
         await (await self.tab.find("change avatar", best_match=True)).click()
 
-        avatar_path = get_random_avatar_path(self.avatar_cycle_config.dir)
+        avatar_path = self.get_random_avatar_path(self.avatar_cycle_config.dir)
         print(f"Setting {self.name} avatar to {avatar_path}")
 
         await (await self.tab.select('input[class="file-input"]')).send_file(
