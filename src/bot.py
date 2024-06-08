@@ -71,12 +71,12 @@ class Bot:
         pass
 
     async def start(self):
-        if hasattr(self, "ws") and self.ws.open:
-            await self.ws.close()
 
         async for ws in connect(
             GATEWAY_ADDRESS, user_agent_header=USER_AGENT, max_size=1_000_000_000
         ):
+            if hasattr(self, "ws") and self.ws.open:
+                await self.ws.close()
             try:
                 self.ws = ws
                 await gather(self.on_message(), self.ws_ready())
