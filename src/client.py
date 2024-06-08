@@ -1,7 +1,7 @@
 from asyncio import sleep
 import random
-import nodriver as uc
-import aiocron
+from nodriver import Browser, Tab, start
+from aiocron import Cron, crontab
 from os import path, listdir, getenv, remove
 from dataclasses import dataclass
 
@@ -33,12 +33,12 @@ class AvatarCycleConfig:
 class Client:
     i = 0
 
-    browser: uc.Browser
-    tab: uc.Tab
+    browser: Browser
+    tab: Tab
     name: str
-    activity_cron: aiocron.Cron
+    activity_cron: Cron
     avatar_cycle_config: AvatarCycleConfig
-    avatar_cycle_cron: aiocron.Cron
+    avatar_cycle_cron: Cron
     last_avatar_cycle_path: str | None
 
     def __init__(self, name: str, avatar_cycle_config: AvatarCycleConfig):
@@ -54,7 +54,7 @@ class Client:
 
     async def create_tab(self):
         Client.i += 1
-        self.browser = await uc.start(
+        self.browser = await start(
             browser_executable_path=BROWSER_PATH,
             user_data_dir=path.join(PROFILE_BASE_DIR, "profile-" + self.name),
             sandbox=False,
@@ -65,7 +65,7 @@ class Client:
         self.tab = await self.browser.get("https://discord.com/app")
 
         if self.avatar_cycle_config.enable:
-            self.avatar_cycle_cron = aiocron.crontab(
+            self.avatar_cycle_cron = crontab(
                 self.avatar_cycle_config.cron, func=self.cycle_avatar
             )
 
