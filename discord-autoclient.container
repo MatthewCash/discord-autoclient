@@ -1,0 +1,24 @@
+[Unit]
+Description=Discord Autoclient
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+Image=discord-autoclient:latest
+
+RunInit=true
+
+User=seluser
+
+Environment=BROWSER_PATH=/opt/google/chrome/chrome
+Environment=PROFILES_PATH=/home/seluser/profiles
+
+Volume=chromium_profiles:/home/seluser/profiles
+Volume=/var/lib/discord-autoclient/accounts.json:/data/accounts.json:ro
+Volume=/var/lib/discord-autoclient/avatars:/data/avatars:ro
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

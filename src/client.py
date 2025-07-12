@@ -85,6 +85,7 @@ class Client:
         return avatar_path
 
     async def cycle_avatar(self):
+        print(f"Cycling avatar for {self.name}")
         await (await self.tab.select('button[aria-label="User Settings"]')).click()
         await (await self.tab.find("edit user profile", best_match=True)).click()
         await (await self.tab.find("change avatar", best_match=True)).click()

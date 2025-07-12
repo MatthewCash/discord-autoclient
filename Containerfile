@@ -1,4 +1,4 @@
-FROM selenium/standalone-chrome:120.0
+FROM docker.io/selenium/standalone-chrome:120.0
 
 RUN sudo apt-get update
 RUN sudo apt-get install python3-pip git -y
