@@ -31,8 +31,6 @@ class AvatarCycleConfig:
 
 
 class Client:
-    i = 0
-
     browser: Browser
     tab: Tab
     name: str
@@ -53,16 +51,15 @@ class Client:
         self.browser.stop()
 
     async def create_tab(self):
-        Client.i += 1
         self.browser = await start(
             browser_executable_path=BROWSER_PATH,
             user_data_dir=path.join(PROFILE_BASE_DIR, "profile-" + self.name),
             sandbox=False,
             headless=True,
-            port=9224 + Client.i,
         )
 
         self.tab = await self.browser.get("https://discord.com/app")
+        await self.tab.set_window_size(0, 0, 1366, 768)  # needed to render all elements
 
         if self.avatar_cycle_config.enable:
             self.avatar_cycle_cron = crontab(
