@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from asyncio import Task, gather, sleep, create_task
+from typing import Any
 from websockets import connect, WebSocketClientProtocol, ConnectionClosed
+from websockets.protocol import State
 from random import random
 from json import loads, dumps
 
@@ -71,17 +73,16 @@ class Bot:
         pass
 
     async def start(self):
-
         async for ws in connect(
             GATEWAY_ADDRESS, user_agent_header=USER_AGENT, max_size=1_000_000_000
         ):
-            if hasattr(self, "ws") and self.ws.open:
+            if hasattr(self, "ws") and self.ws.state == State.OPEN:
                 await self.ws.close()
             try:
                 self.ws = ws
                 await gather(self.on_message(), self.ws_ready())
             except ConnectionClosed as e:
-                print(f"Bot {self.name} disconneted ({e.code}), reconnecting...")
+                print(f"Bot {self.name} disconnected ({e.code}), reconnecting...")
 
     async def ws_ready(self):
         await self.ws.send(dumps(self.get_identify_payload()))
@@ -154,7 +155,7 @@ class Bot:
     async def send_presence(self):
         await self.ws.send(dumps(self.get_presence_payload()))
 
-    def get_identify_payload(self):
+    def get_identify_payload(self) -> dict[Any, Any]:
         return {
             "op": 2,
             "d": {

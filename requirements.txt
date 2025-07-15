@@ -1,4 +1,4 @@
 asyncio==3.4.3
-git+https://github.com/MatthewCash/nodriver.git
+nodriver==0.47.0
 aiocron==1.8
-websockets==12.0
+websockets==15.0.1
